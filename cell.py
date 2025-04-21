@@ -11,6 +11,7 @@ class Cell:
         self.x2 = 0
         self.y2 = 0
         self.win = windows
+        self.visited = False
     
     def draw(self, x1, y1, x2, y2):
         if self.win is None:
