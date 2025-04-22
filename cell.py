@@ -72,4 +72,4 @@ class Cell:
             self.win.draw_line(center_line, "red")
         else:
             self.win.draw_line(center_line, "gray")
-
+            
