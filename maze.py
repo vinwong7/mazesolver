@@ -67,12 +67,12 @@ class Maze:
         self._cells[i][j].visited = True    
 
         while True:
-            north = [i, j-1]
-            south = [i, j+1]
-            west = [i-1, j]
-            east = [i+1, j]
+            top = [i, j-1]
+            bottom = [i, j+1]
+            left = [i-1, j]
+            right = [i+1, j]
 
-            dir_choice = [north, south, west, east]
+            dir_choice = [top, bottom, left, right]
             to_visit = []
 
             for dir in dir_choice:
@@ -96,22 +96,22 @@ class Maze:
             new_x = new_direction[0]
             new_y = new_direction[1]
 
-            if new_direction == north:
+            if new_direction == top:
                 self._cells[i][j].has_top_wall = False
                 self._cells[new_x][new_y].has_bottom_wall = False
                 self._draw_cell(i,j)
                 self._draw_cell(new_x,new_y)
-            elif new_direction == south:
+            elif new_direction == bottom:
                 self._cells[i][j].has_bottom_wall = False
                 self._cells[new_x][new_y].has_top_wall = False
                 self._draw_cell(i,j)
                 self._draw_cell(new_x,new_y)
-            elif new_direction == west:
+            elif new_direction == left:
                 self._cells[i][j].has_left_wall = False
                 self._cells[new_x][new_y].has_right_wall = False
                 self._draw_cell(i,j)
                 self._draw_cell(new_x,new_y)
-            elif new_direction == east:
+            elif new_direction == right:
                 self._cells[i][j].has_right_wall = False
                 self._cells[new_x][new_y].has_left_wall = False
                 self._draw_cell(i,j)
@@ -124,3 +124,52 @@ class Maze:
         for i in range(self.num_cols):
             for j in range(self.num_rows):
                 self._cells[i][j].visited = False
+
+
+    def solve(self):
+        solved = self._solve_r(0,0)
+        return solved
+    
+    def _solve_r(self, i, j):
+        self._animate()
+        #Marking current cell as visited
+        self._cells[i][j].visited = True
+
+        #Bottom right = exit; if current cell is bot right, return
+        if i == self.num_cols - 1 and j == self.num_rows - 1:
+            return True
+        
+        to_visit = []
+
+        #Top Check = i, j-1
+        #Can't move north to move out of bounds south, so just checking if j is larger than 0
+        #Since both cells already have walls broken, only have to check one cell wall
+        #Don't need to visit again if already visited
+        if j - 1 >= 0 and self._cells[i][j].has_top_wall is False and self._cells[i][j-1].visited is False:
+            to_visit.append([i,j-1])
+
+        #Bottom Check = i, j+1
+        #Similar to top check, but checking if j will be less than num_rows
+        if j + 1 < self.num_rows and self._cells[i][j].has_bottom_wall is False and self._cells[i][j+1].visited is False:
+            to_visit.append([i,j+1])
+
+        #Left Check = i-1, j
+        #Similar to top check, but checking if i will be larger than 0
+        if i - 1 >= 0 and self._cells[i][j].has_left_wall is False and self._cells[i-1][j].visited is False:
+            to_visit.append([i-1,j])
+
+        #Right Check = i+1, j
+        #Similar to top check, but checking if i will be less than num_cols
+        if i + 1 < self.num_cols and self._cells[i][j].has_right_wall is False and self._cells[i+1][j].visited is False:
+            to_visit.append([i+1,j])
+
+        for dir in to_visit:
+            new_i = dir[0]
+            new_j = dir[1]
+            self._cells[i][j].draw_move(self._cells[new_i][new_j])
+            result = self._solve_r(new_i, new_j)
+            if result:
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[new_i][new_j],True)
+        return False
